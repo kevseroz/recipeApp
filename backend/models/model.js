@@ -7,7 +7,7 @@ const dataSchema = new mongoose.Schema({
     },
     ingredients: {
         required: true,
-        type: String
+        type: [{amount: String, measurement: String, name: String}]
     },
     description: {
         required: true,
