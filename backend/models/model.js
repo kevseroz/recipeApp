@@ -7,16 +7,17 @@ const dataSchema = new mongoose.Schema({
     },
     ingredients: {
         required: true,
-        type: [{amount: String, measurement: String, name: String}]
+        type: [{ amount: String, measurement: String, name: String }]
     },
     description: {
         required: true,
         type: String
     },
     author: {
-        required: true,
-        type: String
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     }
-})
+});
 
-module.exports = mongoose.model('Data', dataSchema)
+module.exports = mongoose.model('Data', dataSchema);

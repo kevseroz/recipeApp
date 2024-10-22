@@ -1,14 +1,19 @@
 const express = require('express');
 const Model = require('../models/model');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 const router = express.Router()
 
-router.post('/add-recipe', async (req, res) => {
+const authRoutes = require('./auth');
+
+router.use('/auth', authRoutes);
+
+router.post('/add-recipe', authMiddleware, async (req, res) => {
     const data = new Model({
         name: req.body.name,
         ingredients: req.body.ingredients,
         description: req.body.description,
-        author: req.body.author
+        author: req.user.id
     })
     try {
         const savedData = await data.save();
