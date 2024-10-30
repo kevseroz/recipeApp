@@ -36,37 +36,52 @@ router.get('/recipes', async (req, res) => {
 
 router.get('/get-recipe/:id', async (req, res) => {
     try {
-        const data = await Model.findById(req.params.id);
-        res.status(200).json(data)
+        const recipe = await Model.findById(req.params.id);
+        res.status(200).json(recipe)
     }
     catch (err) {
         res.status(500).json({message: err})
     }
 })
 
-router.put('/update-recipe/:id', async (req, res) => {
+router.put('/update-recipe/:id', authMiddleware, async (req, res) => {
     try {
         const id = req.params.id;
         const updatedData = req.body;
         const options = { new: true };
 
-        const result = await Model.findByIdAndUpdate(
-            id, updatedData, options
-        )
+        const recipe = await Model.findById(id);
+        if (!recipe) {
+            return res.status(404).json({ message: 'Recipe not found' });
+        }
 
-        res.send(result)
-    }
-    catch (error) {
-        res.status(400).json({ message: error.message })
-    }
-})
+        if (req.user.id !== recipe.author.toString()) {
+            return res.status(401).json({ message: 'Not authorized to update this recipe' });
+        }
 
-router.delete('/delete-recipe/:id', async (req, res) => {
+        const result = await Model.findByIdAndUpdate(id, updatedData, options);
+
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+router.delete('/delete-recipe/:id', authMiddleware, async (req, res) => {
     try {
         const id = req.params.id;
-        const deletedData = await Model.findByIdAndDelete(id);
+        const recipe = await Model.findById(id);
 
-        res.send(deletedData)
+        if (!recipe) {
+            return res.status(404).json({ message: 'Recipe not found' });
+        }
+
+        if (req.user.id !== recipe.author.toString()) {
+            return res.status(401).json({ message: 'Not authorized to delete this recipe' });
+        }
+
+        await Model.findByIdAndDelete(id);
+        res.status(200).json({ message: 'Recipe deleted successfully' });
     }
     catch (error) {
         res.status(400).json({ message: error.message })
