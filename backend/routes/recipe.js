@@ -32,7 +32,7 @@ router.get('/recipes', async (req, res) => {
 
 router.get('/get-recipe/:id', async (req, res) => {
     try {
-        const recipe = await Model.findById(req.params.id, 'content').populate({
+        const recipe = await Model.findById(req.params.id, ).populate({
             path: 'messages',
             populate: { path: 'user', select: 'username'}
         })
